@@ -7,6 +7,7 @@ pipeline{
         IMAGE = "jenkinsci"
         FULLREPO = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}"
         TAG = "${BUILD_NUMBER}"
+        GOOGLE_APPLICATION_CREDENTIALS=
     }
     stages{
         stage("checkout SCM"){
@@ -49,6 +50,7 @@ pipeline{
          stage('Deploy the Image') {
             steps {
                 sh '''
+                gcloud container clusters get-credentials testcluster --zone us-central1-a --project project-753633bf-7369-418c-920
                 helm upgrade --install jenkinsci-app ../adminapp \
                 --set image.repository=${FULLREPO} \
                 --set image.tag=${TAG} \
