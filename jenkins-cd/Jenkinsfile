@@ -1,45 +1,54 @@
-pipeline{
-    agent  any
-    parameters{
-        imageTag(name: 'DOCKER_IMAGE',
-        image: 'us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/jenkinsci',
-        filter: '.*',
-        choiceType: 'PT_SINGLE_SELECT',
-        defaultTag: 'latest',
-        registry: 'https://us-central1-docker.pkg.dev',
-        credentialId: 'docker-creds',
-        tagOrder: 'NATURAL')
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'IMAGE_TAG', description: 'Enter Docker image tag')
         choice(name: 'ENV', choices: ['dev', 'stage', 'prod'], description: 'Environment')
     }
+
     environment {
         PROJECT_ID = "project-753633bf-7369-418c-920"
         REGION = "us-central1"
         REPO = "argocd"
         IMAGE = "jenkinsci"
         FULLREPO = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}"
+    }
+
+    stages {
+
+        stage('Show Available Tags') {
+            steps {
+                sh '''
+                echo "Available tags:"
+                gcloud artifacts docker images list $FULLREPO \
+                --format="get(tags)" | tr ',' '\\n' | sort -nr | head -20
+                '''
+            }
         }
-    stages{
+
         stage('Deploy the Image') {
             steps {
                 sh '''
-                gcloud container clusters get-credentials testcluster --zone us-central1-a --project project-753633bf-7369-418c-920
+                gcloud container clusters get-credentials testcluster \
+                --zone us-central1-a \
+                --project project-753633bf-7369-418c-920
+
                 helm upgrade --install jenkinsci-app ./adminapp \
-                --set image.repository=${FULLREPO} \
+                --set image.repository=$FULLREPO \
                 --set image.tag=${IMAGE_TAG} \
                 --namespace default \
                 --create-namespace
                 '''
             }
         }
+    }
 
-
-}
-        post {
+    post {
         success {
-            echo "✅ Image pushed successfully to Artifact Registry"
+            echo "✅ Image Deployed successfully to GKE"
         }
         failure {
-            echo "❌ Build failed"
+            echo "❌ Deployment failed"
         }
     }
 }
