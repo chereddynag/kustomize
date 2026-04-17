@@ -3,6 +3,7 @@ pipeline {
 
        environment {
         REGION = "us-central1"
+        ZONE = "us-central1-1"
         REPO = "argocd"
         IMAGE = "jenkinsci"
         FULLREPO = "${env.REGION}-docker.pkg.dev/${params.PROJECTID}/${env.REPO}/${env.IMAGE}"
@@ -12,23 +13,23 @@ pipeline {
 
         stage('Show Available Tags') {
             steps {
-                sh '''
+                sh """
                 gcloud container clusters get-credentials ${params.CLUSTER_NAME} \
-                --zone ${env.REGION} \
+                --zone ${env.ZONE} \
                 --project ${params.PROJECTID}
-                '''
+                """
             }
         }
 
         stage('Deploy the Image') {
             steps {
-                sh '''
+                sh """
                 helm upgrade --install jenkinsci-app ./adminapp \
                 --set image.repository=$FULLREPO \
                 --set image.tag=${params.IMAGE_TAG} \
                 --namespace ${params.NAMESPACE} \
                 --create-namespace
-                '''
+                """
             }
         }
     }
