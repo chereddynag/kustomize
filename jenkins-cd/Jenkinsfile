@@ -25,7 +25,7 @@ pipeline {
             
             steps {
                 script{
-                if(params.OPERATION == 'deploy'){
+                if(params.OPERATION == 'Deploy'){
                 echo "🚀 Deploying image: ${params.IMAGE_TAG}"
                 sh """
                 helm upgrade --install jenkinsci-app ./adminapp \
@@ -35,7 +35,7 @@ pipeline {
                 --create-namespace
                 """
                 }
-                else if(params.OPERATION == 'rollback'){
+                else if(params.OPERATION == 'Rollback'){
                 echo "🔁 Rolling back deployment"
                 sh """
                 helm rollback jenkinsci-app \
