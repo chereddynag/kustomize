@@ -1,0 +1,60 @@
+pipeline{
+    agent  any
+    environment {
+        PROJECT_ID = "project-753633bf-7369-418c-920"
+        REGION = "us-central1"
+        REPO = "argocd"
+        IMAGE = "jenkinsci"
+        TAG = "1.0"
+        GAR = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}"
+    }
+    stages{
+        stage("checkout SCM"){
+            steps{
+                checkout scm
+            }
+           
+        }
+        stage("build DockerImage"){
+            steps{
+                sh '''
+                docker build -t ${IMAGE}:${TAG} .
+                '''
+            }
+        }
+        stage("Authenticate to the GCP"){
+            steps{
+                withCredentials([file(credentialsId: 'gcp-sa-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    sh '''
+                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                    gcloud auth configure-docker ${REGION}-docker.pkg.dev -q
+                    '''
+            }
+        }
+        }
+                stage('Tag Image') {
+            steps {
+                sh '''
+                docker tag ${IMAGE}:${TAG} ${GAR}
+                '''
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh '''
+                docker push ${GAR}
+                '''
+            }
+        }
+
+        post {
+        success {
+            echo "✅ Image pushed successfully to Artifact Registry"
+        }
+        failure {
+            echo "❌ Build failed"
+        }
+    }
+}
+}
