@@ -7,8 +7,7 @@ pipeline{
         IMAGE = "jenkinsci"
         FULLREPO = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}"
         TAG = "${BUILD_NUMBER}"
-        GOOGLE_APPLICATION_CREDENTIALS=
-    }
+        }
     stages{
         stage("checkout SCM"){
             steps{
