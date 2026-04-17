@@ -3,7 +3,7 @@ pipeline {
 
        environment {
         REGION = "us-central1"
-        ZONE = "us-central1-1"
+        ZONE = "us-central1-a"
         REPO = "argocd"
         IMAGE = "jenkinsci"
         FULLREPO = "${env.REGION}-docker.pkg.dev/${params.PROJECTID}/${env.REPO}/${env.IMAGE}"
