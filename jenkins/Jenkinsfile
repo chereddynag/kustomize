@@ -48,6 +48,8 @@ pipeline{
             }
         }
 
+
+}
         post {
         success {
             echo "✅ Image pushed successfully to Artifact Registry"
@@ -56,5 +58,4 @@ pipeline{
             echo "❌ Build failed"
         }
     }
-}
 }
