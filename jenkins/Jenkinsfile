@@ -46,18 +46,6 @@ pipeline{
                 '''
             }
         }
-         stage('Deploy the Image') {
-            steps {
-                sh '''
-                gcloud container clusters get-credentials testcluster --zone us-central1-a --project project-753633bf-7369-418c-920
-                helm upgrade --install jenkinsci-app ./adminapp \
-                --set image.repository=${FULLREPO} \
-                --set image.tag=${TAG} \
-                --namespace default \
-                --create-namespace
-                '''
-            }
-        }
 
 
 }

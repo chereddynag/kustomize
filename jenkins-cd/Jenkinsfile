@@ -1,0 +1,38 @@
+pipeline{
+    agent  any
+    parameters{
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+        choice(name: 'ENV', choices: ['dev', 'stage', 'prod'], description: 'Environment')
+    }
+    environment {
+        PROJECT_ID = "project-753633bf-7369-418c-920"
+        REGION = "us-central1"
+        REPO = "argocd"
+        IMAGE = "jenkinsci"
+        FULLREPO = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}"
+        }
+    stages{
+        stage('Deploy the Image') {
+            steps {
+                sh '''
+                gcloud container clusters get-credentials testcluster --zone us-central1-a --project project-753633bf-7369-418c-920
+                helm upgrade --install jenkinsci-app ./adminapp \
+                --set image.repository=${FULLREPO} \
+                --set image.tag=${IMAGE_TAG} \
+                --namespace default \
+                --create-namespace
+                '''
+            }
+        }
+
+
+}
+        post {
+        success {
+            echo "✅ Image pushed successfully to Artifact Registry"
+        }
+        failure {
+            echo "❌ Build failed"
+        }
+    }
+}
