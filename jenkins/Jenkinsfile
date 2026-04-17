@@ -5,8 +5,8 @@ pipeline{
         REGION = "us-central1"
         REPO = "argocd"
         IMAGE = "jenkinsci"
+        FULLREPO = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}"
         TAG = "${BUILD_NUMBER}"
-        GAR = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}"
     }
     stages{
         stage("checkout SCM"){
@@ -34,7 +34,7 @@ pipeline{
                 stage('Tag Image') {
             steps {
                 sh '''
-                docker tag ${IMAGE}:${TAG} ${GAR}
+                docker tag ${IMAGE}:${TAG} ${FULLREPO}:${TAG}
                 '''
             }
         }
@@ -42,7 +42,18 @@ pipeline{
         stage('Push Image') {
             steps {
                 sh '''
-                docker push ${GAR}
+                docker push ${FULLREPO}:${TAG}
+                '''
+            }
+        }
+         stage('Deploy the Image') {
+            steps {
+                sh '''
+                helm upgrade --install jenkinsci-app ../adminapp \
+                --set image.repository=${FULLREPO} \
+                --set image.tag=${TAG} \
+                --namespace default \
+                --create-namespace
                 '''
             }
         }
