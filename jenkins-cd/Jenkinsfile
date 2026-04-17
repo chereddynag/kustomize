@@ -1,17 +1,11 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'IMAGE_TAG', description: 'Enter Docker image tag')
-        choice(name: 'ENV', choices: ['dev', 'stage', 'prod'], description: 'Environment')
-    }
-
-    environment {
-        PROJECT_ID = "project-753633bf-7369-418c-920"
+       environment {
         REGION = "us-central1"
         REPO = "argocd"
         IMAGE = "jenkinsci"
-        FULLREPO = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}"
+        FULLREPO = "${REGION}-docker.pkg.dev/${env.PROJECTID}/${REPO}/${IMAGE}"
     }
 
     stages {
@@ -19,11 +13,9 @@ pipeline {
         stage('Show Available Tags') {
             steps {
                 sh '''
-                echo "Available tags:"
-                gcloud artifacts docker images list \
-us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/jenkinsci \
---include-tags \
---format="table(digest, tags)"
+                gcloud container clusters get-credentials ${env.CLUSTER_NAME} \
+                --zone us-central1-a \
+                --project ${env.PROJECTID}
                 '''
             }
         }
@@ -31,14 +23,10 @@ us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/jenkinsci \
         stage('Deploy the Image') {
             steps {
                 sh '''
-                gcloud container clusters get-credentials testcluster \
-                --zone us-central1-a \
-                --project project-753633bf-7369-418c-920
-
                 helm upgrade --install jenkinsci-app ./adminapp \
                 --set image.repository=$FULLREPO \
                 --set image.tag=${IMAGE_TAG} \
-                --namespace default \
+                --namespace ${env.NAMESPACE} \
                 --create-namespace
                 '''
             }

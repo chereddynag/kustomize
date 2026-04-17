@@ -1,0 +1,4 @@
+name: projects/project-753633bf-7369-418c-920/policies/iam.disableServiceAccountKeyCreation
+spec:
+  rules:
+  - enforce: true
