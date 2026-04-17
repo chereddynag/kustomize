@@ -21,8 +21,11 @@ pipeline {
             }
         }
 
-        stage('Deploy the Image') {
+        stage('Deploy or rollback') {
+            
             steps {
+                if(params.OPERATION == 'deploy'){
+                echo "🚀 Deploying image: ${params.IMAGE_TAG}"
                 sh """
                 helm upgrade --install jenkinsci-app ./adminapp \
                 --set image.repository=$FULLREPO \
@@ -30,7 +33,17 @@ pipeline {
                 --namespace ${params.NAMESPACE} \
                 --create-namespace
                 """
+                }
+                else if(params.OPERATION == 'rollback'){
+                echo "🔁 Rolling back deployment"
+                sh """
+                helm rollback jenkinsci-app \
+                --namespace ${params.NAMESPACE}
+                """
+            }else {
+                error "Invalid OPERATION: ${params.OPERATION}"
             }
+            
         }
     }
 
