@@ -24,6 +24,7 @@ pipeline {
         stage('Deploy or rollback') {
             
             steps {
+                script{
                 if(params.OPERATION == 'deploy'){
                 echo "🚀 Deploying image: ${params.IMAGE_TAG}"
                 sh """
@@ -45,6 +46,7 @@ pipeline {
             }
             
         }
+            }
     }
 
 
