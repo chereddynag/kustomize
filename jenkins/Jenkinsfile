@@ -25,7 +25,8 @@ pipeline{
         stage("Authenticate to the GCP"){
             steps{
                     sh '''
-                       gcloud auth configure-docker ${REGION}-docker.pkg.dev -q
+                    gacloud auth list
+                    gcloud auth configure-docker ${REGION}-docker.pkg.dev -q
                     '''
             }
         }
