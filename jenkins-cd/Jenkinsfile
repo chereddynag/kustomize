@@ -20,8 +20,10 @@ pipeline {
             steps {
                 sh '''
                 echo "Available tags:"
-                gcloud artifacts docker images list $FULLREPO \
-                --format="get(tags)" | tr ',' '\\n' | sort -nr | head -20
+                gcloud artifacts docker images list \
+us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/jenkinsci \
+--include-tags \
+--format="table(digest, tags)"
                 '''
             }
         }
