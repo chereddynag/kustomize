@@ -1,7 +1,13 @@
 pipeline{
     agent  any
     parameters{
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+        imageTag(name: 'DOCKER_IMAGE',
+        image: 'us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/jenkinsci',
+        filter: '.*',
+        defaultTag: 'latest',
+        registry: 'https://us-central1-docker.pkg.dev',
+        credentialId: 'docker-creds',
+        tagOrder: 'NATURAL')
         choice(name: 'ENV', choices: ['dev', 'stage', 'prod'], description: 'Environment')
     }
     environment {
