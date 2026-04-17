@@ -25,7 +25,7 @@ pipeline {
                 sh '''
                 helm upgrade --install jenkinsci-app ./adminapp \
                 --set image.repository=$FULLREPO \
-                --set image.tag=${IMAGE_TAG} \
+                --set image.tag=${params.IMAGE_TAG} \
                 --namespace ${params.NAMESPACE} \
                 --create-namespace
                 '''
