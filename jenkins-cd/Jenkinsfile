@@ -4,6 +4,7 @@ pipeline{
         imageTag(name: 'DOCKER_IMAGE',
         image: 'us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/jenkinsci',
         filter: '.*',
+        choiceType: 'PT_SINGLE_SELECT'
         defaultTag: 'latest',
         registry: 'https://us-central1-docker.pkg.dev',
         credentialId: 'docker-creds',
