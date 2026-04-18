@@ -1,0 +1,114 @@
+pipeline {
+    agent {
+        kubernetes {
+            defaultContainer 'tools'
+            label 'k8-agent'
+
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent
+    args: ['\\$(JENKINS_SECRET)', '\\$(JENKINS_NAME)']
+
+  - name: tools
+    image: us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/helm:1.0
+    command:
+    - cat
+    tty: true
+"""
+        }
+    }
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev','qa','uat','prod'])
+        choice(name: 'OPERATION', choices: ['Deploy','Rollback'])
+        string(name: 'IMAGE_TAG', description: 'Docker image tag')
+    }
+
+    environment {
+        REGION = "us-central1"
+        ZONE = "us-central1-a"
+        REPO = "argocd"
+        IMAGE = "jenkinsci"
+    }
+
+    stages {
+
+        stage('Resolve Environment') {
+            steps {
+                script {
+                    def config = [
+                        dev:  [cluster: "testcluster", namespace: "dev",  project: "project-753633bf-7369-418c-920"],
+                        qa:   [cluster: "testcluster", namespace: "dev",  project: "project-753633bf-7369-418c-920"],
+                        uat:  [cluster: "testcluster", namespace: "uat",  project: "project-753633bf-7369-418c-920"],
+                        prod: [cluster: "testcluster", namespace: "prod", project: "project-753633bf-7369-418c-920"]
+                    ]
+
+                    def selected = config[params.ENVIRONMENT]
+
+                    env.CLUSTER_NAME = selected.cluster
+                    env.NAMESPACE    = selected.namespace
+                    env.PROJECTID    = selected.project
+                }
+            }
+        }
+
+        stage('Auth Cluster') {
+            steps {
+                container('tools') {
+                    sh """
+                    gcloud container clusters get-credentials ${env.CLUSTER_NAME} \
+                    --zone ${env.ZONE} \
+                    --project ${env.PROJECTID}
+                    """
+                }
+            }
+        }
+
+        stage('Approval') {
+            agent none
+            when {
+                expression { params.ENVIRONMENT == 'prod' }
+            }
+            steps {
+                input message: "Confirm ${params.OPERATION} to PROD?"
+            }
+        }
+
+        stage('Deploy or Rollback') {
+            steps {
+                container('tools') {
+                    script {
+                        def FULLREPO = "${env.REGION}-docker.pkg.dev/${env.PROJECTID}/${env.REPO}/${env.IMAGE}"
+
+                        if (params.OPERATION == 'Deploy') {
+
+                            sh """
+                            helm upgrade --install jenkinsci-app ./adminapp \
+                            --set image.repository=${FULLREPO} \
+                            --set image.tag=${params.IMAGE_TAG} \
+                            --namespace ${env.NAMESPACE} \
+                            --create-namespace
+                            """
+
+                        } else {
+
+                            sh """
+                            helm rollback jenkinsci-app \
+                            --namespace ${env.NAMESPACE}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
