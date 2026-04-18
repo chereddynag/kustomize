@@ -15,19 +15,24 @@ pipeline {
         script {
             def config = [
                 dev: [
-                    cluster: "dev-cluster",
+                    cluster: "testcluster",
                     namespace: "dev",
-                    project: "project-dev"
+                    project: "project-753633bf-7369-418c-920"
                 ],
-                stage: [
-                    cluster: "stage-cluster",
-                    namespace: "stage",
-                    project: "project-stage"
+                qa: [
+                    cluster: "testcluster",
+                    namespace: "dev",
+                    project: "project-753633bf-7369-418c-920"
+                ],
+                uat: [
+                    cluster: "testcluster",
+                    namespace: "uat",
+                    project: "project-753633bf-7369-418c-920"
                 ],
                 prod: [
-                    cluster: "prod-cluster",
+                    cluster: "testcluster",
                     namespace: "prod",
-                    project: "project-prod"
+                    project: "project-753633bf-7369-418c-920"
                 ]
             ]
 
