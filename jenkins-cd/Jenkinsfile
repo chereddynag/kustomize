@@ -1,12 +1,12 @@
 pipeline {
     agent any
 
-       environment {
+    environment {
         REGION = "us-central1"
         ZONE = "us-central1-a"
         REPO = "argocd"
         IMAGE = "jenkinsci"
-        FULLREPO = "${env.REGION}-docker.pkg.dev/${params.PROJECTID}/${env.REPO}/${env.IMAGE}"
+        
     }
 
     stages {
@@ -65,6 +65,7 @@ pipeline {
     when {
         expression { params.ENVIRONMENT == 'prod' }
     }
+    agent noneZZ
     steps {
         input message: "Confirm ${params.OPERATION} to PROD?"
     }
@@ -73,6 +74,7 @@ pipeline {
             
             steps {
                 script{
+                def FULLREPO = "${env.REGION}-docker.pkg.dev/${env.PROJECTID}/${env.REPO}/${env.IMAGE}"
                 if(params.OPERATION == 'Deploy'){
                 echo "🚀 Deploying image: ${params.IMAGE_TAG}"
                 sh """
