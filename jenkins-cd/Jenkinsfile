@@ -89,6 +89,14 @@ pipeline {
         }
             }
     }
+    stage('Approval') {
+    when {
+        expression { params.ENVIRONMENT == 'prod' }
+    }
+    steps {
+        input message: "Confirm ${params.OPERATION} to PROD?"
+    }
+}
 
 
 }
