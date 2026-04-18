@@ -10,6 +10,42 @@ pipeline {
     }
 
     stages {
+        stage('Resolve Environment') {
+    steps {
+        script {
+            def config = [
+                dev: [
+                    cluster: "dev-cluster",
+                    namespace: "dev",
+                    project: "project-dev"
+                ],
+                stage: [
+                    cluster: "stage-cluster",
+                    namespace: "stage",
+                    project: "project-stage"
+                ],
+                prod: [
+                    cluster: "prod-cluster",
+                    namespace: "prod",
+                    project: "project-prod"
+                ]
+            ]
+
+            if (!config.containsKey(params.ENVIRONMENT)) {
+                error "Invalid ENVIRONMENT selected"
+            }
+
+            env.CLUSTER_NAME = config[params.ENVIRONMENT].cluster
+            env.NAMESPACE    = config[params.ENVIRONMENT].namespace
+            env.PROJECTID    = config[params.ENVIRONMENT].project
+
+            echo "Using:"
+            echo "Cluster: ${env.CLUSTER_NAME}"
+            echo "Namespace: ${env.NAMESPACE}"
+            echo "Project: ${env.PROJECTID}"
+        }
+    }
+}
 
         stage('Show Available Tags') {
             steps {
