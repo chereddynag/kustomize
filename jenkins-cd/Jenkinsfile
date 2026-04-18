@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent none
 
     environment {
         REGION = "us-central1"
@@ -11,6 +11,7 @@ pipeline {
 
     stages {
         stage('Resolve Environment') {
+            agent any
     steps {
         script {
             def config = [
@@ -53,6 +54,7 @@ pipeline {
 }
 
         stage('Show Available Tags') {
+            agent any
             steps {
                 sh """
                 gcloud container clusters get-credentials ${env.CLUSTER_NAME} \
@@ -62,16 +64,17 @@ pipeline {
             }
         }
         stage('Approval') {
+            agent none
     when {
         expression { params.ENVIRONMENT == 'prod' }
     }
-    agent none
+    
     steps {
         input message: "Confirm ${params.OPERATION} to PROD?"
     }
 }
         stage('Deploy or rollback') {
-            
+            agent any
             steps {
                 script{
                 def FULLREPO = "${env.REGION}-docker.pkg.dev/${env.PROJECTID}/${env.REPO}/${env.IMAGE}"
