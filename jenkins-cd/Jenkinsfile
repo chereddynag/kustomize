@@ -65,7 +65,7 @@ pipeline {
     when {
         expression { params.ENVIRONMENT == 'prod' }
     }
-    agent noneZZ
+    agent none
     steps {
         input message: "Confirm ${params.OPERATION} to PROD?"
     }
