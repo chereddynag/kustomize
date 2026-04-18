@@ -55,9 +55,9 @@ pipeline {
         stage('Show Available Tags') {
             steps {
                 sh """
-                gcloud container clusters get-credentials ${params.CLUSTER_NAME} \
+                gcloud container clusters get-credentials ${env.CLUSTER_NAME} \
                 --zone ${env.ZONE} \
-                --project ${params.PROJECTID}
+                --project ${env.PROJECTID}
                 """
             }
         }
@@ -72,7 +72,7 @@ pipeline {
                 helm upgrade --install jenkinsci-app ./adminapp \
                 --set image.repository=$FULLREPO \
                 --set image.tag=${params.IMAGE_TAG} \
-                --namespace ${params.NAMESPACE} \
+                --namespace ${env.NAMESPACE} \
                 --create-namespace
                 """
                 }
@@ -80,7 +80,7 @@ pipeline {
                 echo "🔁 Rolling back deployment"
                 sh """
                 helm rollback jenkinsci-app \
-                --namespace ${params.NAMESPACE}
+                --namespace ${env.NAMESPACE}
                 """
             }else {
                 error "Invalid OPERATION: ${params.OPERATION}"
