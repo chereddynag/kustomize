@@ -1,29 +1,5 @@
 pipeline {
-    agent {
-        kubernetes {
-    label 'k8-agent'
-    defaultContainer 'tools'
-
-    yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  serviceAccountName: jenkins
-  containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    args:
-    - \$(JENKINS_SECRET)
-    - \$(JENKINS_NAME)
-
-  - name: tools
-    image: us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/helm:1.0
-    command:
-    - cat
-    tty: true
-"""
-}
-    }
+    agent none
 
     options {
         disableConcurrentBuilds()
@@ -45,6 +21,7 @@ spec:
     stages {
 
         stage('Resolve Environment') {
+            agent any
             steps {
                 script {
                     def config = [
@@ -86,6 +63,31 @@ spec:
         }
 
         stage('Deploy or Rollback') {
+            agent {
+        kubernetes {
+    label 'k8-agent'
+    defaultContainer 'tools'
+
+    yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    args:
+    - \$(JENKINS_SECRET)
+    - \$(JENKINS_NAME)
+
+  - name: tools
+    image: us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/helm:1.0
+    command:
+    - cat
+    tty: true
+"""
+}
+    }
             steps {
                 container('tools') {
                     script {
