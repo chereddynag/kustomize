@@ -4,22 +4,22 @@ pipeline {
             defaultContainer 'tools'
             label 'k8-agent'
 
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  serviceAccountName: jenkins
-  containers:
-  - name: jnlp
-    image: jenkins/inbound-agent
-    args: ['\\$(JENKINS_SECRET)', '\\$(JENKINS_NAME)']
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+            serviceAccountName: jenkins
+            containers:
+            - name: jnlp
+                image: jenkins/inbound-agent
+                args: ['\\$(JENKINS_SECRET)', '\\$(JENKINS_NAME)']
 
-  - name: tools
-    image: us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/helm:1.0
-    command:
-    - cat
-    tty: true
-"""
+            - name: tools
+                image: us-central1-docker.pkg.dev/project-753633bf-7369-418c-920/argocd/helm:1.0
+                command:
+                - cat
+                tty: true
+            '''
         }
     }
 
