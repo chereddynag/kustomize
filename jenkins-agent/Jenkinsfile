@@ -63,17 +63,17 @@ spec:
             }
         }
 
-        stage('Auth Cluster') {
-            steps {
-                container('tools') {
-                    sh """
-                    gcloud container clusters get-credentials ${env.CLUSTER_NAME} \
-                    --zone ${env.ZONE} \
-                    --project ${env.PROJECTID}
-                    """
-                }
-            }
-        }
+        // stage('Auth Cluster') {
+        //     steps {
+        //         container('tools') {
+        //             sh """
+        //             gcloud container clusters get-credentials ${env.CLUSTER_NAME} \
+        //             --zone ${env.ZONE} \
+        //             --project ${env.PROJECTID}
+        //             """
+        //         }
+        //     }
+        // }
 
         stage('Approval') {
             agent none
