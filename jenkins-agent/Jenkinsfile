@@ -49,7 +49,7 @@ spec:
                 script {
                     def config = [
                         dev:  [cluster: "testcluster", namespace: "dev",  project: "project-753633bf-7369-418c-920"],
-                        qa:   [cluster: "testcluster", namespace: "dev",  project: "project-753633bf-7369-418c-920"],
+                        qa:   [cluster: "testcluster", namespace: "qa",  project: "project-753633bf-7369-418c-920"],
                         uat:  [cluster: "testcluster", namespace: "uat",  project: "project-753633bf-7369-418c-920"],
                         prod: [cluster: "testcluster", namespace: "prod", project: "project-753633bf-7369-418c-920"]
                     ]
