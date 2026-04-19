@@ -1,10 +1,13 @@
 name: helm
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: 
-    workflow_dispatch:
-    # push:
+    #workflow_dispatch:
+    push:
     #     branches:
     #         - release
+permissions:
+  id-token: write
+  contents: read
 jobs:
   check-bats-version:
     runs-on: ubuntu-latest
