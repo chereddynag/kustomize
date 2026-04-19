@@ -8,9 +8,14 @@ on:
 jobs:
   check-bats-version:
     runs-on: ubuntu-latest
+    env:
+        PROJECT_ID: project-753633bf-7369-418c-920
+        REGION: us-central1
+        REPO: argocd
+        IMAGE: ghaction
     steps:
       - name: checkout the repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       - name: set up nodejs
         uses: actions/setup-node@v4
         with:
@@ -25,3 +30,9 @@ jobs:
         uses: azure/setup-helm@v4
       - name: check helm version
         run: helm version
+     - name: configure Docker
+       run: |
+        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+     - name: create a image
+       run: |
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ github.sha }} .
