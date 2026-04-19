@@ -30,9 +30,9 @@ jobs:
         uses: azure/setup-helm@v4
       - name: check helm version
         run: helm version
-     - name: configure Docker
-       run: |
-        gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-     - name: create a image
-       run: |
-        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ github.sha }} .
+        - name: configure Docker
+        run: |
+            gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+        - name: create a image
+        run: |
+            docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ github.sha }} .
